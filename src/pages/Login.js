@@ -11,19 +11,26 @@ export default function Login() {
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-      const userRef = doc(db, 'users', user.email);
+
+      // ✅ Use UID (not email) for Firestore document path
+      const userRef = doc(db, 'users', user.uid);
       const userSnap = await getDoc(userRef);
+
       if (!userSnap.exists()) {
-        await setDoc(userRef, { balance: 1000 });
+        await setDoc(userRef, { balance: 1000 }); // ✅ First-time setup
       }
+
       navigate('/dashboard');
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('Login error:', error.message);
+      alert('Login Failed: ' + error.message);
     }
   };
 
   useEffect(() => {
-    if (auth.currentUser) navigate('/dashboard');
+    if (auth.currentUser) {
+      navigate('/dashboard');
+    }
   }, [navigate]);
 
   return (
@@ -42,11 +49,11 @@ const styles = {
     border: '1px solid #ccc',
     borderRadius: '12px',
     textAlign: 'center',
-    fontFamily: 'Arial'
+    fontFamily: 'Arial',
   },
   heading: {
     marginBottom: '20px',
-    fontSize: '22px'
+    fontSize: '22px',
   },
   button: {
     padding: '12px 20px',
@@ -55,6 +62,6 @@ const styles = {
     color: 'white',
     border: 'none',
     borderRadius: '8px',
-    cursor: 'pointer'
-  }
+    cursor: 'pointer',
+  },
 };
